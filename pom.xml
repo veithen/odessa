@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Odessa
+  %%
+  Copyright (C) 2022 Andreas Veithen
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.veithen</groupId>
+        <artifactId>parent</artifactId>
+        <version>42</version>
+    </parent>
+
+    <artifactId>odessa</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>odessa</name>
+    <url>https://github.com/veithen/odessa</url>
+    <inceptionYear>2022</inceptionYear>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/veithen/odessa/tree/master</url>
+        <connection>scm:git:http://github.com/veithen/odessa.git</connection>
+        <developerConnection>scm:git:https://github.com/veithen/odessa.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <github.repository>odessa</github.repository>
+        <javaVersion>1.8</javaVersion>
+        <project.build.outputTimestamp>2022-06-04T00:00:00Z</project.build.outputTimestamp>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <projectName>Odessa</projectName>
+                    <licenseName>apache_v2</licenseName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
