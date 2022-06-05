@@ -33,8 +33,8 @@ public final class NewExpression extends Expression {
         StringBuilder buffer = new StringBuilder("new ");
         buffer.append(type.replace('/', '.'));
         buffer.append("(");
-        for (int i=0; i<args.length; i++) {
-            if (i>0) {
+        for (int i = 0; i < args.length; i++) {
+            if (i > 0) {
                 buffer.append(", ");
             }
             buffer.append(args[i]);

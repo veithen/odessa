@@ -22,6 +22,8 @@ package com.github.veithen.odessa;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.Iterator;
+import java.util.function.Function;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -54,6 +56,42 @@ final class MethodVisitorImpl extends MethodVisitor {
         return type.isInstance(expression) ? type.cast(expression) : null;
     }
 
+    private <T extends Expression> boolean consumeTopOfStackExpression(
+            Class<T> type, Function<T, Expression> transformation) {
+        Expression currentExpression = null;
+        boolean lastInstructionIsDup = false;
+        for (Iterator<Instruction> it = instructions.descendingIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next();
+            if (instruction instanceof PushInstruction) {
+                currentExpression = ((PushInstruction) instruction).getExpression();
+                break;
+            } else if (instruction instanceof DupInstruction) {
+                if (lastInstructionIsDup) {
+                    return false;
+                }
+                lastInstructionIsDup = true;
+            } else {
+                return false;
+            }
+        }
+        if (!type.isInstance(currentExpression)) {
+            return false;
+        }
+        Expression newExpression = transformation.apply(type.cast(currentExpression));
+        if (newExpression == null) {
+            return false;
+        }
+        if (lastInstructionIsDup) {
+            instructions.removeLast();
+            instructions.removeLast();
+            instructions.addLast(new PushInstruction(newExpression));
+        } else {
+            instructions.removeLast();
+            instructions.addLast(new ExpressionInstruction(newExpression));
+        }
+        return true;
+    }
+
     @Override
     public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
         System.out.println("Frame " + Arrays.asList(stack) + " " + numStack);
@@ -75,6 +113,9 @@ final class MethodVisitorImpl extends MethodVisitor {
         switch (opcode) {
             case Opcodes.DUP:
                 instructions.addLast(DupInstruction.INSTANCE);
+                break;
+            case Opcodes.POP:
+                instructions.addLast(new ExpressionInstruction(popExpression()));
                 break;
             case Opcodes.ICONST_0:
             case Opcodes.ICONST_1:
@@ -125,17 +166,15 @@ final class MethodVisitorImpl extends MethodVisitor {
         switch (opcode) {
             case Opcodes.ASTORE:
             case Opcodes.ISTORE:
-                if (instructions.peekLast() instanceof DupInstruction) {
-                    instructions.removeLast();
-                    instructions.addLast(new PushInstruction(new StoreExpression(varIndex, popExpression())));
-                } else {
-                    instructions.addLast(
-                            new ExpressionInstruction(new StoreExpression(varIndex, popExpression())));
+                if (!consumeTopOfStackExpression(
+                        Expression.class, e -> new StoreExpression(varIndex, e))) {
+                    throw new IllegalStateException();
                 }
                 break;
             case Opcodes.ILOAD:
                 {
-                    PreIncrementExpression expression = peekExpression(PreIncrementExpression.class);
+                    PreIncrementExpression expression =
+                            peekExpression(PreIncrementExpression.class);
                     if (expression != null && expression.getVarIndex() == varIndex) {
                         instructions.removeLast();
                         instructions.addLast(new PushInstruction(expression));
@@ -179,22 +218,14 @@ final class MethodVisitorImpl extends MethodVisitor {
         }
         switch (opcode) {
             case Opcodes.INVOKEVIRTUAL:
-                
                 break;
-            case Opcodes.INVOKESPECIAL: {
-                if (instructions.peekLast() instanceof DupInstruction) {
-                    instructions.removeLast();
-                    RawNewExpression expression = (RawNewExpression) popExpression();
-                    instructions.addLast(new PushInstruction(new NewExpression(expression.getType(), args)));
+            case Opcodes.INVOKESPECIAL:
+                if (consumeTopOfStackExpression(
+                        RawNewExpression.class, e -> new NewExpression(e.getType(), args))) {
                     break;
                 }
-                RawNewExpression expression = peekExpression(RawNewExpression.class);
-                if (expression != null) {
-                    instructions.removeLast();
-                    instructions.addLast(new ExpressionInstruction(new NewExpression(expression.getType(), args)));
-                }
+                // TODO
                 break;
-            }
             default:
                 throw new UnknownOpcodeException(opcode);
         }
