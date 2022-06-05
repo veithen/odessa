@@ -17,20 +17,16 @@
  * limitations under the License.
  * #L%
  */
-public final class PreIncrementExpression extends IncrementExpression {
-    public PreIncrementExpression(int varIndex, int increment) {
-        super(varIndex, increment);
+package com.github.veithen.odessa;
+
+public final class PushInstruction extends Instruction {
+    private final Expression expression;
+
+    public PushInstruction(Expression expression) {
+        this.expression = expression;
     }
 
-    @Override
-    public String toString() {
-        switch (increment) {
-            case -1:
-                return "--$" + varIndex;
-            case 1:
-                return "++$" + varIndex;
-            default:
-                return "$" + varIndex + " += " + increment;
-        }
+    public Expression getExpression() {
+        return expression;
     }
 }

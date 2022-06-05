@@ -17,6 +17,8 @@
  * limitations under the License.
  * #L%
  */
+package com.github.veithen.odessa;
+
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;

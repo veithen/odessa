@@ -17,15 +17,10 @@
  * limitations under the License.
  * #L%
  */
-public final class ReturnInstruction extends Instruction {
-    private final Expression expression;
+package com.github.veithen.odessa;
 
-    public ReturnInstruction(Expression expression) {
-        this.expression = expression;
-    }
+public final class DupInstruction extends Instruction {
+    public static final DupInstruction INSTANCE = new DupInstruction();
 
-    @Override
-    public String toString() {
-        return expression == null ? "return;" : "return " + expression + ";";
-    }
+    private DupInstruction() {}
 }

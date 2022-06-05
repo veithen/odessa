@@ -17,19 +17,18 @@
  * limitations under the License.
  * #L%
  */
-public final class LoadExpression extends Expression {
-    private final int varIndex;
+package com.github.veithen.odessa;
 
-    public LoadExpression(int varIndex) {
+public abstract class IncrementExpression extends Expression {
+    protected final int varIndex;
+    protected final int increment;
+
+    public IncrementExpression(int varIndex, int increment) {
         this.varIndex = varIndex;
+        this.increment = increment;
     }
 
-    public int getVarIndex() {
+    public final int getVarIndex() {
         return varIndex;
-    }
-
-    @Override
-    public String toString() {
-        return "$" + varIndex;
     }
 }

@@ -17,22 +17,13 @@
  * limitations under the License.
  * #L%
  */
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+package com.github.veithen.odessa;
 
-final class ClassVisitorImpl extends ClassVisitor {
-    ClassVisitorImpl() {
-        super(Opcodes.ASM9);
-    }
+/** Expression that creates a new instance of a given type without calling a constructor. */
+public final class RawNewExpression extends Expression {
+    private final String type;
 
-    @Override
-    public MethodVisitor visitMethod(
-            int access, String name, String descriptor, String signature, String[] exceptions) {
-        if (name.equals("testMethod")) {
-            return new MethodVisitorImpl();
-        } else {
-            return null;
-        }
+    public RawNewExpression(String type) {
+        this.type = type;
     }
 }

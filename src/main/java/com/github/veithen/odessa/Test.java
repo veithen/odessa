@@ -17,16 +17,16 @@
  * limitations under the License.
  * #L%
  */
-public abstract class IncrementExpression extends Expression {
-    protected final int varIndex;
-    protected final int increment;
+package com.github.veithen.odessa;
 
-    public IncrementExpression(int varIndex, int increment) {
-        this.varIndex = varIndex;
-        this.increment = increment;
-    }
+import java.io.InputStream;
 
-    public final int getVarIndex() {
-        return varIndex;
+import org.objectweb.asm.ClassReader;
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+        try (InputStream in = Test.class.getResourceAsStream("TestClass.class")) {
+            new ClassReader(in).accept(new ClassVisitorImpl(), 0);
+        }
     }
 }

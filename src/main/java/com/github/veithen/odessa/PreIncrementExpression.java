@@ -17,29 +17,22 @@
  * limitations under the License.
  * #L%
  */
-import org.objectweb.asm.Opcodes;
+package com.github.veithen.odessa;
 
-public final class BinaryExpression extends Expression {
-    private final Expression operand1;
-    private final Expression operand2;
-    private final int opcode;
-
-    public BinaryExpression(Expression operand1, Expression operand2, int opcode) {
-        this.operand1 = operand1;
-        this.operand2 = operand2;
-        this.opcode = opcode;
+public final class PreIncrementExpression extends IncrementExpression {
+    public PreIncrementExpression(int varIndex, int increment) {
+        super(varIndex, increment);
     }
 
     @Override
     public String toString() {
-        String symbol;
-        switch (opcode) {
-            case Opcodes.IMUL:
-                symbol = "*";
-                break;
+        switch (increment) {
+            case -1:
+                return "--$" + varIndex;
+            case 1:
+                return "++$" + varIndex;
             default:
-                symbol = "__" + opcode + "__";
+                return "$" + varIndex + " += " + increment;
         }
-        return operand1 + " " + symbol + " " + operand2;
     }
 }

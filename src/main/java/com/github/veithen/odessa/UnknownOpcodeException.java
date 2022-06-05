@@ -17,6 +17,8 @@
  * limitations under the License.
  * #L%
  */
+package com.github.veithen.odessa;
+
 public final class UnknownOpcodeException extends RuntimeException {
     public UnknownOpcodeException(int opcode) {
         super("Unknown opcode " + opcode);

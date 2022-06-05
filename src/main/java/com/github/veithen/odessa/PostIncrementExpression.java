@@ -17,8 +17,22 @@
  * limitations under the License.
  * #L%
  */
-public final class DupInstruction extends Instruction {
-    public static final DupInstruction INSTANCE = new DupInstruction();
+package com.github.veithen.odessa;
 
-    private DupInstruction() {}
+public final class PostIncrementExpression extends IncrementExpression {
+    public PostIncrementExpression(int varIndex, int increment) {
+        super(varIndex, increment);
+    }
+
+    @Override
+    public String toString() {
+        switch (increment) {
+            case -1:
+                return "$" + varIndex + "--";
+            case 1:
+                return "$" + varIndex + "++";
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
 }

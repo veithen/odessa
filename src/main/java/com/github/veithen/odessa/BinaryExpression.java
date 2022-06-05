@@ -17,17 +17,31 @@
  * limitations under the License.
  * #L%
  */
-public final class StoreExpression extends Expression {
-    private final int varIndex;
-    private final Expression expression;
+package com.github.veithen.odessa;
 
-    public StoreExpression(int varIndex, Expression expression) {
-        this.varIndex = varIndex;
-        this.expression = expression;
+import org.objectweb.asm.Opcodes;
+
+public final class BinaryExpression extends Expression {
+    private final Expression operand1;
+    private final Expression operand2;
+    private final int opcode;
+
+    public BinaryExpression(Expression operand1, Expression operand2, int opcode) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+        this.opcode = opcode;
     }
 
     @Override
     public String toString() {
-        return "$" + varIndex + " = " + expression;
+        String symbol;
+        switch (opcode) {
+            case Opcodes.IMUL:
+                symbol = "*";
+                break;
+            default:
+                symbol = "__" + opcode + "__";
+        }
+        return operand1 + " " + symbol + " " + operand2;
     }
 }

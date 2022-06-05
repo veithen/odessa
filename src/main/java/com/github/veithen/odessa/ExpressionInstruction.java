@@ -17,15 +17,22 @@
  * limitations under the License.
  * #L%
  */
-public final class ConstantExpression extends Expression {
-    private final Object value;
+package com.github.veithen.odessa;
 
-    public ConstantExpression(Object value) {
-        this.value = value;
+/** Evaluates the given expression, but discards the result. */
+public final class ExpressionInstruction extends Instruction {
+    private final Expression expression;
+
+    public ExpressionInstruction(Expression expression) {
+        this.expression = expression;
+    }
+
+    public Expression getExpression() {
+        return expression;
     }
 
     @Override
     public String toString() {
-        return value.toString();
+        return expression + ";";
     }
 }

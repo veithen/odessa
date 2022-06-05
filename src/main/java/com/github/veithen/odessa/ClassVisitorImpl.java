@@ -17,20 +17,24 @@
  * limitations under the License.
  * #L%
  */
-public final class PostIncrementExpression extends IncrementExpression {
-    public PostIncrementExpression(int varIndex, int increment) {
-        super(varIndex, increment);
+package com.github.veithen.odessa;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+final class ClassVisitorImpl extends ClassVisitor {
+    ClassVisitorImpl() {
+        super(Opcodes.ASM9);
     }
 
     @Override
-    public String toString() {
-        switch (increment) {
-            case -1:
-                return "$" + varIndex + "--";
-            case 1:
-                return "$" + varIndex + "++";
-            default:
-                throw new UnsupportedOperationException();
+    public MethodVisitor visitMethod(
+            int access, String name, String descriptor, String signature, String[] exceptions) {
+        if (name.equals("testMethod")) {
+            return new MethodVisitorImpl();
+        } else {
+            return null;
         }
     }
 }

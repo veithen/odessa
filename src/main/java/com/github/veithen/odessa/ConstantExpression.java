@@ -17,4 +17,17 @@
  * limitations under the License.
  * #L%
  */
-public abstract class Expression {}
+package com.github.veithen.odessa;
+
+public final class ConstantExpression extends Expression {
+    private final Object value;
+
+    public ConstantExpression(Object value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
+}

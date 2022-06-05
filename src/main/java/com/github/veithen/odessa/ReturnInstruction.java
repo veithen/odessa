@@ -17,11 +17,17 @@
  * limitations under the License.
  * #L%
  */
-/** Expression that creates a new instance of a given type without calling a constructor. */
-public final class RawNewExpression extends Expression {
-    private final String type;
+package com.github.veithen.odessa;
 
-    public RawNewExpression(String type) {
-        this.type = type;
+public final class ReturnInstruction extends Instruction {
+    private final Expression expression;
+
+    public ReturnInstruction(Expression expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public String toString() {
+        return expression == null ? "return;" : "return " + expression + ";";
     }
 }

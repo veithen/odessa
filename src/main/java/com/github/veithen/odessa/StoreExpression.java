@@ -17,20 +17,19 @@
  * limitations under the License.
  * #L%
  */
-/** Evaluates the given expression, but discards the result. */
-public final class ExpressionInstruction extends Instruction {
+package com.github.veithen.odessa;
+
+public final class StoreExpression extends Expression {
+    private final int varIndex;
     private final Expression expression;
 
-    public ExpressionInstruction(Expression expression) {
+    public StoreExpression(int varIndex, Expression expression) {
+        this.varIndex = varIndex;
         this.expression = expression;
-    }
-
-    public Expression getExpression() {
-        return expression;
     }
 
     @Override
     public String toString() {
-        return expression + ";";
+        return "$" + varIndex + " = " + expression;
     }
 }

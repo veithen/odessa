@@ -17,4 +17,6 @@
  * limitations under the License.
  * #L%
  */
-public abstract class Instruction {}
+package com.github.veithen.odessa;
+
+public final class NewExpression extends Expression {}

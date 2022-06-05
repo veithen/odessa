@@ -17,14 +17,21 @@
  * limitations under the License.
  * #L%
  */
-public final class PushInstruction extends Instruction {
-    private final Expression expression;
+package com.github.veithen.odessa;
 
-    public PushInstruction(Expression expression) {
-        this.expression = expression;
+public final class LoadExpression extends Expression {
+    private final int varIndex;
+
+    public LoadExpression(int varIndex) {
+        this.varIndex = varIndex;
     }
 
-    public Expression getExpression() {
-        return expression;
+    public int getVarIndex() {
+        return varIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "$" + varIndex;
     }
 }

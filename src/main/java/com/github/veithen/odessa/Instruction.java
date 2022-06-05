@@ -17,18 +17,6 @@
  * limitations under the License.
  * #L%
  */
-public class TestClass {
-    public int testMethod() {
-        // new String("bar");
-        // String test = new String("foobar");
-        // for (int i=0; i<10; i++) {
-        //     System.out.println(i==0 ? test : "");
-        // }
-        int test = 12;
-        int test2 = (test = 23);
-        System.out.println(test = 34);
-        test2 = 2 * test++;
-        test++;
-        return 42;
-    }
-}
+package com.github.veithen.odessa;
+
+public abstract class Instruction {}
