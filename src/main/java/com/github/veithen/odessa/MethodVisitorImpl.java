@@ -34,11 +34,24 @@ final class MethodVisitorImpl extends MethodVisitor {
         super(Opcodes.ASM9);
     }
 
-    private Expression pop() {
+    private Expression popExpression() {
         if (!(instructions.peekLast() instanceof PushInstruction)) {
             throw new IllegalStateException();
         }
         return ((PushInstruction) instructions.removeLast()).getExpression();
+    }
+
+    private Expression peekExpression() {
+        Instruction instruction = instructions.peekLast();
+        if (!(instruction instanceof PushInstruction)) {
+            return null;
+        }
+        return ((PushInstruction) instruction).getExpression();
+    }
+
+    private <T extends Expression> T peekExpression(Class<T> type) {
+        Expression expression = peekExpression();
+        return type.isInstance(expression) ? type.cast(expression) : null;
     }
 
     @Override
@@ -50,7 +63,7 @@ final class MethodVisitorImpl extends MethodVisitor {
     public void visitTypeInsn(int opcode, String type) {
         switch (opcode) {
             case Opcodes.NEW:
-                instructions.push(new PushInstruction(new RawNewExpression(type)));
+                instructions.addLast(new PushInstruction(new RawNewExpression(type)));
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -74,14 +87,17 @@ final class MethodVisitorImpl extends MethodVisitor {
                 break;
             case Opcodes.IMUL:
                 {
-                    Expression operand2 = pop();
-                    Expression operand1 = pop();
+                    Expression operand2 = popExpression();
+                    Expression operand1 = popExpression();
                     instructions.addLast(
                             new PushInstruction(new BinaryExpression(operand1, operand2, opcode)));
                     break;
                 }
+            case Opcodes.RETURN:
+                instructions.addLast(new ReturnInstruction(null));
+                break;
             case Opcodes.IRETURN:
-                instructions.addLast(new ReturnInstruction(pop()));
+                instructions.addLast(new ReturnInstruction(popExpression()));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
@@ -111,31 +127,25 @@ final class MethodVisitorImpl extends MethodVisitor {
             case Opcodes.ISTORE:
                 if (instructions.peekLast() instanceof DupInstruction) {
                     instructions.removeLast();
-                    instructions.addLast(new PushInstruction(new StoreExpression(varIndex, pop())));
+                    instructions.addLast(new PushInstruction(new StoreExpression(varIndex, popExpression())));
                 } else {
                     instructions.addLast(
-                            new ExpressionInstruction(new StoreExpression(varIndex, pop())));
+                            new ExpressionInstruction(new StoreExpression(varIndex, popExpression())));
                 }
                 break;
             case Opcodes.ILOAD:
                 {
-                    Instruction lastInstruction = instructions.peekLast();
-                    if (lastInstruction instanceof ExpressionInstruction) {
-                        Expression expression =
-                                ((ExpressionInstruction) lastInstruction).getExpression();
-                        if (expression instanceof PreIncrementExpression) {
-                            PreIncrementExpression preIncrementExpression =
-                                    (PreIncrementExpression) expression;
-                            if (preIncrementExpression.getVarIndex() == varIndex) {
-                                instructions.removeLast();
-                                instructions.addLast(new PushInstruction(preIncrementExpression));
-                                break;
-                            }
-                        }
+                    PreIncrementExpression expression = peekExpression(PreIncrementExpression.class);
+                    if (expression != null && expression.getVarIndex() == varIndex) {
+                        instructions.removeLast();
+                        instructions.addLast(new PushInstruction(expression));
+                        break;
                     }
-                    instructions.addLast(new PushInstruction(new LoadExpression(varIndex)));
-                    break;
                 }
+                // Fall through.
+            case Opcodes.ALOAD:
+                instructions.addLast(new PushInstruction(new LoadExpression(varIndex)));
+                break;
             default:
                 throw new UnknownOpcodeException(opcode);
         }
@@ -165,7 +175,28 @@ final class MethodVisitorImpl extends MethodVisitor {
         int argCount = type.getArgumentTypes().length;
         Expression[] args = new Expression[argCount];
         for (int i = 0; i < argCount; i++) {
-            args[argCount - i - 1] = pop();
+            args[argCount - i - 1] = popExpression();
+        }
+        switch (opcode) {
+            case Opcodes.INVOKEVIRTUAL:
+                
+                break;
+            case Opcodes.INVOKESPECIAL: {
+                if (instructions.peekLast() instanceof DupInstruction) {
+                    instructions.removeLast();
+                    RawNewExpression expression = (RawNewExpression) popExpression();
+                    instructions.addLast(new PushInstruction(new NewExpression(expression.getType(), args)));
+                    break;
+                }
+                RawNewExpression expression = peekExpression(RawNewExpression.class);
+                if (expression != null) {
+                    instructions.removeLast();
+                    instructions.addLast(new ExpressionInstruction(new NewExpression(expression.getType(), args)));
+                }
+                break;
+            }
+            default:
+                throw new UnknownOpcodeException(opcode);
         }
     }
 

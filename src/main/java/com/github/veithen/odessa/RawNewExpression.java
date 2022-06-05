@@ -26,4 +26,8 @@ public final class RawNewExpression extends Expression {
     public RawNewExpression(String type) {
         this.type = type;
     }
+
+    public String getType() {
+        return type;
+    }
 }

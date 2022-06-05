@@ -31,10 +31,6 @@ final class ClassVisitorImpl extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(
             int access, String name, String descriptor, String signature, String[] exceptions) {
-        if (name.equals("testMethod")) {
-            return new MethodVisitorImpl();
-        } else {
-            return null;
-        }
+        return new MethodVisitorImpl();
     }
 }
