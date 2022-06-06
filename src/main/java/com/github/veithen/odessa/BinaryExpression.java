@@ -41,6 +41,9 @@ public final class BinaryExpression extends Expression {
     public String toString() {
         String symbol;
         switch (opcode) {
+            case Opcodes.IADD:
+                symbol = "+";
+                break;
             case Opcodes.IMUL:
                 symbol = "*";
                 break;

@@ -19,24 +19,4 @@
  */
 package com.github.veithen.odessa;
 
-public final class FieldExpression extends LvalueExpression {
-    private final String owner;
-    private final Expression target;
-    private final String name;
-
-    public FieldExpression(String owner, Expression target, String name) {
-        this.owner = owner;
-        this.target = target;
-        this.name = name;
-    }
-
-    @Override
-    public boolean isPure() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return (target == null ? owner.replace('/', '.') : target.toString()) + "." + name;
-    }
-}
+public abstract class LvalueExpression extends Expression {}

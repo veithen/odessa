@@ -19,22 +19,24 @@
  */
 package com.github.veithen.odessa;
 
-public final class StoreExpression extends Expression {
+public final class VariableExpression extends LvalueExpression {
     private final int varIndex;
-    private final Expression expression;
 
-    public StoreExpression(int varIndex, Expression expression) {
+    public VariableExpression(int varIndex) {
         this.varIndex = varIndex;
-        this.expression = expression;
+    }
+
+    public int getVarIndex() {
+        return varIndex;
     }
 
     @Override
     public boolean isPure() {
-        return false;
+        return true;
     }
 
     @Override
     public String toString() {
-        return "$" + varIndex + " = " + expression;
+        return "$" + varIndex;
     }
 }

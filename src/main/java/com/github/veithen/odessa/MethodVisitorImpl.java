@@ -140,6 +140,7 @@ final class MethodVisitorImpl extends MethodVisitor {
                 instructions.addLast(
                         new PushInstruction(new ConstantExpression(opcode - Opcodes.ICONST_0)));
                 break;
+            case Opcodes.IADD:
             case Opcodes.IMUL:
                 {
                     Expression operand2 = popExpression();
@@ -181,7 +182,8 @@ final class MethodVisitorImpl extends MethodVisitor {
             case Opcodes.ASTORE:
             case Opcodes.ISTORE:
                 if (!consumeTopOfStackExpression(
-                        Expression.class, e -> new StoreExpression(varIndex, e))) {
+                        Expression.class,
+                        e -> new AssignmentExpression(new VariableExpression(varIndex), e))) {
                     throw new IllegalStateException();
                 }
                 break;
@@ -197,7 +199,7 @@ final class MethodVisitorImpl extends MethodVisitor {
                 }
                 // Fall through.
             case Opcodes.ALOAD:
-                instructions.addLast(new PushInstruction(new LoadExpression(varIndex)));
+                instructions.addLast(new PushInstruction(new VariableExpression(varIndex)));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
@@ -209,8 +211,8 @@ final class MethodVisitorImpl extends MethodVisitor {
         Instruction lastInstruction = instructions.peekLast();
         if (lastInstruction instanceof PushInstruction) {
             Expression expression = ((PushInstruction) lastInstruction).getExpression();
-            if (expression instanceof LoadExpression
-                    && ((LoadExpression) expression).getVarIndex() == varIndex) {
+            if (expression instanceof VariableExpression
+                    && ((VariableExpression) expression).getVarIndex() == varIndex) {
                 instructions.removeLast();
                 instructions.addLast(
                         new PushInstruction(new PostIncrementExpression(varIndex, increment)));
@@ -230,6 +232,22 @@ final class MethodVisitorImpl extends MethodVisitor {
                 break;
             case Opcodes.GETSTATIC:
                 instructions.addLast(new PushInstruction(new FieldExpression(owner, null, name)));
+                break;
+            case Opcodes.PUTFIELD:
+                {
+                    Expression expression = popExpression();
+                    instructions.addLast(
+                            new ExpressionInstruction(
+                                    new AssignmentExpression(
+                                            new FieldExpression(owner, popExpression(), name),
+                                            expression)));
+                    break;
+                }
+            case Opcodes.PUTSTATIC:
+                instructions.addLast(
+                        new ExpressionInstruction(
+                                new AssignmentExpression(
+                                        new FieldExpression(owner, null, name), popExpression())));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);

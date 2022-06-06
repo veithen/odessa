@@ -19,24 +19,22 @@
  */
 package com.github.veithen.odessa;
 
-public final class LoadExpression extends Expression {
-    private final int varIndex;
+public final class AssignmentExpression extends Expression {
+    private final LvalueExpression target;
+    private final Expression expression;
 
-    public LoadExpression(int varIndex) {
-        this.varIndex = varIndex;
-    }
-
-    public int getVarIndex() {
-        return varIndex;
+    public AssignmentExpression(LvalueExpression target, Expression expression) {
+        this.target = target;
+        this.expression = expression;
     }
 
     @Override
     public boolean isPure() {
-        return true;
+        return false;
     }
 
     @Override
     public String toString() {
-        return "$" + varIndex;
+        return target + " = " + expression;
     }
 }
