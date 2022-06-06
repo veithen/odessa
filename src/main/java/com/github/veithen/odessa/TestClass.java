@@ -20,10 +20,12 @@
 package com.github.veithen.odessa;
 
 public class TestClass {
+    private int intField;
+
     public int testMethod1() {
         int test = 12;
         int test2 = (test = 23);
-        // System.out.println(test = 34);
+        System.out.println(test = 34);
         test2 = 2 * test++;
         test++;
         return 42;
@@ -40,5 +42,9 @@ public class TestClass {
     public void testMethod3() {
         int x = 2;
         String test = "a" + x + "c";
+    }
+
+    public void testMethod4() {
+        intField += 4;
     }
 }

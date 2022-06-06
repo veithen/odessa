@@ -37,10 +37,24 @@ final class MethodVisitorImpl extends MethodVisitor {
     }
 
     private Expression popExpression() {
-        if (!(instructions.peekLast() instanceof PushInstruction)) {
-            throw new IllegalStateException();
+        boolean isDup = false;
+        for (Iterator<Instruction> it = instructions.descendingIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next();
+            if (instruction instanceof PushInstruction) {
+                Expression expression = ((PushInstruction) instruction).getExpression();
+                if (isDup && !expression.isPure()) {
+                    throw new IllegalStateException();
+                }
+                instructions.removeLast();
+                return expression;
+            }
+            if (instruction instanceof DupInstruction) {
+                isDup = true;
+            } else {
+                break;
+            }
         }
-        return ((PushInstruction) instructions.removeLast()).getExpression();
+        throw new IllegalStateException();
     }
 
     private Expression peekExpression() {
@@ -205,6 +219,21 @@ final class MethodVisitorImpl extends MethodVisitor {
         }
         instructions.addLast(
                 new ExpressionInstruction(new PreIncrementExpression(varIndex, increment)));
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+        switch (opcode) {
+            case Opcodes.GETFIELD:
+                instructions.addLast(
+                        new PushInstruction(new FieldExpression(owner, popExpression(), name)));
+                break;
+            case Opcodes.GETSTATIC:
+                instructions.addLast(new PushInstruction(new FieldExpression(owner, null, name)));
+                break;
+            default:
+                throw new UnknownOpcodeException(opcode);
+        }
     }
 
     @Override

@@ -25,6 +25,11 @@ public final class PreIncrementExpression extends IncrementExpression {
     }
 
     @Override
+    public boolean isPure() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         switch (increment) {
             case -1:

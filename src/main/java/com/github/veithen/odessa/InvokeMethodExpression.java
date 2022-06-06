@@ -31,6 +31,11 @@ public final class InvokeMethodExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return target + "." + name + args;
     }

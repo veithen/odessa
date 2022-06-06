@@ -19,4 +19,6 @@
  */
 package com.github.veithen.odessa;
 
-public abstract class Expression {}
+public abstract class Expression {
+    public abstract boolean isPure();
+}

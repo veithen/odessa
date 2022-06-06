@@ -31,6 +31,11 @@ public final class LoadExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "$" + varIndex;
     }

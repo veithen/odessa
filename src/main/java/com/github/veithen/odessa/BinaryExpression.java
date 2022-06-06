@@ -33,6 +33,11 @@ public final class BinaryExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return operand1.isPure() && operand2.isPure();
+    }
+
+    @Override
     public String toString() {
         String symbol;
         switch (opcode) {

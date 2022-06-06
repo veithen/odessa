@@ -19,25 +19,24 @@
  */
 package com.github.veithen.odessa;
 
-public final class PostIncrementExpression extends IncrementExpression {
-    public PostIncrementExpression(int varIndex, int increment) {
-        super(varIndex, increment);
+public final class FieldExpression extends Expression {
+    private final String owner;
+    private final Expression target;
+    private final String name;
+
+    public FieldExpression(String owner, Expression target, String name) {
+        this.owner = owner;
+        this.target = target;
+        this.name = name;
     }
 
     @Override
     public boolean isPure() {
-        return false;
+        return true;
     }
 
     @Override
     public String toString() {
-        switch (increment) {
-            case -1:
-                return "$" + varIndex + "--";
-            case 1:
-                return "$" + varIndex + "++";
-            default:
-                throw new UnsupportedOperationException();
-        }
+        return (target == null ? owner.replace('/', '.') : target.toString()) + "." + name;
     }
 }

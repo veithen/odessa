@@ -29,6 +29,11 @@ public final class StoreExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "$" + varIndex + " = " + expression;
     }

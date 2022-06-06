@@ -29,6 +29,11 @@ public final class NewExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "new " + type.replace('/', '.') + args;
     }

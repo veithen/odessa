@@ -27,6 +27,11 @@ public final class ConstantExpression extends Expression {
     }
 
     @Override
+    public boolean isPure() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return value.toString();
     }

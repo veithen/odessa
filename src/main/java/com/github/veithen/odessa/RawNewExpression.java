@@ -27,6 +27,11 @@ public final class RawNewExpression extends Expression {
         this.type = type;
     }
 
+    @Override
+    public boolean isPure() {
+        return false;
+    }
+
     public String getType() {
         return type;
     }
