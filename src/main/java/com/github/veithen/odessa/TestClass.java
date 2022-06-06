@@ -23,7 +23,7 @@ public class TestClass {
     public int testMethod1() {
         int test = 12;
         int test2 = (test = 23);
-        System.out.println(test = 34);
+        // System.out.println(test = 34);
         test2 = 2 * test++;
         test++;
         return 42;
@@ -35,5 +35,10 @@ public class TestClass {
         // for (int i=0; i<10; i++) {
         //     System.out.println(i==0 ? test : "");
         // }
+    }
+
+    public void testMethod3() {
+        int x = 2;
+        String test = "a" + x + "c";
     }
 }

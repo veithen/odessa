@@ -218,7 +218,14 @@ final class MethodVisitorImpl extends MethodVisitor {
         }
         switch (opcode) {
             case Opcodes.INVOKEVIRTUAL:
-                break;
+                {
+                    Expression expression = new InvokeMethodExpression(popExpression(), name, args);
+                    instructions.addLast(
+                            type.getReturnType() == Type.VOID_TYPE
+                                    ? new ExpressionInstruction(expression)
+                                    : new PushInstruction(expression));
+                    break;
+                }
             case Opcodes.INVOKESPECIAL:
                 if (consumeTopOfStackExpression(
                         RawNewExpression.class, e -> new NewExpression(e.getType(), args))) {

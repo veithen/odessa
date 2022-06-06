@@ -19,17 +19,23 @@
  */
 package com.github.veithen.odessa;
 
-public final class NewExpression extends Expression {
-    private final String type;
-    private final ArgList args;
+public final class ArgList {
+    private final Expression[] args;
 
-    public NewExpression(String type, Expression[] args) {
-        this.type = type;
-        this.args = new ArgList(args);
+    public ArgList(Expression[] args) {
+        this.args = args;
     }
 
     @Override
     public String toString() {
-        return "new " + type.replace('/', '.') + args;
+        StringBuilder buffer = new StringBuilder("(");
+        for (int i = 0; i < args.length; i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            buffer.append(args[i]);
+        }
+        buffer.append(")");
+        return buffer.toString();
     }
 }

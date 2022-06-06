@@ -19,17 +19,19 @@
  */
 package com.github.veithen.odessa;
 
-public final class NewExpression extends Expression {
-    private final String type;
+public final class InvokeMethodExpression extends Expression {
+    private final Expression target;
+    private final String name;
     private final ArgList args;
 
-    public NewExpression(String type, Expression[] args) {
-        this.type = type;
+    public InvokeMethodExpression(Expression target, String name, Expression[] args) {
+        this.target = target;
+        this.name = name;
         this.args = new ArgList(args);
     }
 
     @Override
     public String toString() {
-        return "new " + type.replace('/', '.') + args;
+        return target + "." + name + args;
     }
 }
