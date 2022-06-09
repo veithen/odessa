@@ -19,34 +19,22 @@
  */
 package com.github.veithen.odessa;
 
-public class TestClass {
-    private int intField;
+import org.objectweb.asm.Label;
 
-    public int testMethod1() {
-        int test = 12;
-        int test2 = (test = 23);
-        System.out.println(test = 34);
-        test2 = 2 * test++;
-        test++;
-        return 42;
+public final class LabelledInstruction {
+    private final Label label;
+    private final Instruction instruction;
+
+    public LabelledInstruction(Label label, Instruction instruction) {
+        this.label = label;
+        this.instruction = instruction;
     }
 
-    public void testMethod2() {
-        int j = 23;
-        boolean b = j != 34;
-        new String("bar");
-        String test = new String("foobar");
-        // for (int i=0; i<10; i++) {
-        //     System.out.println(i==0 ? test : "");
-        // }
+    public Label getLabel() {
+        return label;
     }
 
-    // public void testMethod3() {
-    //     int x = 2;
-    //     String test = "a" + x + "c";
-    // }
-
-    // public void testMethod4() {
-    //     intField += 4;
-    // }
+    public Instruction getInstruction() {
+        return instruction;
+    }
 }

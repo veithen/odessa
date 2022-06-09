@@ -19,8 +19,6 @@
  */
 package com.github.veithen.odessa;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.function.Function;
 
@@ -30,7 +28,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 final class MethodVisitorImpl extends MethodVisitor {
-    private final Deque<Instruction> instructions = new ArrayDeque<>();
+    private final InstructionList instructions = new InstructionList();
 
     MethodVisitorImpl() {
         super(Opcodes.ASM9);
@@ -38,14 +36,14 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     private Expression popExpression() {
         boolean isDup = false;
-        for (Iterator<Instruction> it = instructions.descendingIterator(); it.hasNext(); ) {
-            Instruction instruction = it.next();
+        for (Iterator<LabelledInstruction> it = instructions.descendingIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next().getInstruction();
             if (instruction instanceof PushInstruction) {
                 Expression expression = ((PushInstruction) instruction).getExpression();
                 if (isDup && !expression.isPure()) {
                     throw new IllegalStateException();
                 }
-                instructions.removeLast();
+                instructions.pop();
                 return expression;
             }
             if (instruction instanceof DupInstruction) {
@@ -58,7 +56,7 @@ final class MethodVisitorImpl extends MethodVisitor {
     }
 
     private Expression peekExpression() {
-        Instruction instruction = instructions.peekLast();
+        Instruction instruction = instructions.peek();
         if (!(instruction instanceof PushInstruction)) {
             return null;
         }
@@ -74,8 +72,8 @@ final class MethodVisitorImpl extends MethodVisitor {
             Class<T> type, Function<T, Expression> transformation) {
         Expression currentExpression = null;
         boolean lastInstructionIsDup = false;
-        for (Iterator<Instruction> it = instructions.descendingIterator(); it.hasNext(); ) {
-            Instruction instruction = it.next();
+        for (Iterator<LabelledInstruction> it = instructions.descendingIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next().getInstruction();
             if (instruction instanceof PushInstruction) {
                 currentExpression = ((PushInstruction) instruction).getExpression();
                 break;
@@ -96,26 +94,26 @@ final class MethodVisitorImpl extends MethodVisitor {
             return false;
         }
         if (lastInstructionIsDup) {
-            instructions.removeLast();
-            instructions.removeLast();
-            instructions.addLast(new PushInstruction(newExpression));
+            instructions.pop();
+            instructions.pop();
+            instructions.push(new PushInstruction(newExpression));
         } else {
-            instructions.removeLast();
-            instructions.addLast(new ExpressionInstruction(newExpression));
+            instructions.pop();
+            instructions.push(new ExpressionInstruction(newExpression));
         }
         return true;
     }
 
     @Override
     public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
-        instructions.addLast(new Frame());
+        instructions.push(new Frame());
     }
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
         switch (opcode) {
             case Opcodes.NEW:
-                instructions.addLast(new PushInstruction(new RawNewExpression(type)));
+                instructions.push(new PushInstruction(new RawNewExpression(type)));
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -126,10 +124,10 @@ final class MethodVisitorImpl extends MethodVisitor {
     public void visitInsn(int opcode) {
         switch (opcode) {
             case Opcodes.DUP:
-                instructions.addLast(DupInstruction.INSTANCE);
+                instructions.push(DupInstruction.INSTANCE);
                 break;
             case Opcodes.POP:
-                instructions.addLast(new ExpressionInstruction(popExpression()));
+                instructions.push(new ExpressionInstruction(popExpression()));
                 break;
             case Opcodes.ICONST_0:
             case Opcodes.ICONST_1:
@@ -137,7 +135,7 @@ final class MethodVisitorImpl extends MethodVisitor {
             case Opcodes.ICONST_3:
             case Opcodes.ICONST_4:
             case Opcodes.ICONST_5:
-                instructions.addLast(
+                instructions.push(
                         new PushInstruction(new ConstantExpression(opcode - Opcodes.ICONST_0)));
                 break;
             case Opcodes.IADD:
@@ -145,15 +143,15 @@ final class MethodVisitorImpl extends MethodVisitor {
                 {
                     Expression operand2 = popExpression();
                     Expression operand1 = popExpression();
-                    instructions.addLast(
+                    instructions.push(
                             new PushInstruction(new BinaryExpression(operand1, operand2, opcode)));
                     break;
                 }
             case Opcodes.RETURN:
-                instructions.addLast(new ReturnInstruction(null));
+                instructions.push(new ReturnInstruction(null));
                 break;
             case Opcodes.IRETURN:
-                instructions.addLast(new ReturnInstruction(popExpression()));
+                instructions.push(new ReturnInstruction(popExpression()));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
@@ -162,14 +160,14 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     @Override
     public void visitLdcInsn(Object value) {
-        instructions.addLast(new PushInstruction(new ConstantExpression(value)));
+        instructions.push(new PushInstruction(new ConstantExpression(value)));
     }
 
     @Override
     public void visitIntInsn(int opcode, int operand) {
         switch (opcode) {
             case Opcodes.BIPUSH:
-                instructions.addLast(new PushInstruction(new ConstantExpression(operand)));
+                instructions.push(new PushInstruction(new ConstantExpression(operand)));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
@@ -192,14 +190,14 @@ final class MethodVisitorImpl extends MethodVisitor {
                     PreIncrementExpression expression =
                             peekExpression(PreIncrementExpression.class);
                     if (expression != null && expression.getVarIndex() == varIndex) {
-                        instructions.removeLast();
-                        instructions.addLast(new PushInstruction(expression));
+                        instructions.pop();
+                        instructions.push(new PushInstruction(expression));
                         break;
                     }
                 }
                 // Fall through.
             case Opcodes.ALOAD:
-                instructions.addLast(new PushInstruction(new VariableExpression(varIndex)));
+                instructions.push(new PushInstruction(new VariableExpression(varIndex)));
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
@@ -208,18 +206,18 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     @Override
     public void visitIincInsn(int varIndex, int increment) {
-        Instruction lastInstruction = instructions.peekLast();
+        Instruction lastInstruction = instructions.peek();
         if (lastInstruction instanceof PushInstruction) {
             Expression expression = ((PushInstruction) lastInstruction).getExpression();
             if (expression instanceof VariableExpression
                     && ((VariableExpression) expression).getVarIndex() == varIndex) {
-                instructions.removeLast();
-                instructions.addLast(
+                instructions.pop();
+                instructions.push(
                         new PushInstruction(new PostIncrementExpression(varIndex, increment)));
                 return;
             }
         }
-        instructions.addLast(
+        instructions.push(
                 new ExpressionInstruction(new PreIncrementExpression(varIndex, increment)));
     }
 
@@ -227,7 +225,7 @@ final class MethodVisitorImpl extends MethodVisitor {
     public void visitJumpInsn(int opcode, Label label) {
         switch (opcode) {
             case Opcodes.GOTO:
-                instructions.addLast(new GotoInstruction(label));
+                instructions.push(new GotoInstruction(label));
                 break;
             case Opcodes.IF_ICMPEQ:
                 // TODO
@@ -241,16 +239,16 @@ final class MethodVisitorImpl extends MethodVisitor {
     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
         switch (opcode) {
             case Opcodes.GETFIELD:
-                instructions.addLast(
+                instructions.push(
                         new PushInstruction(new FieldExpression(owner, popExpression(), name)));
                 break;
             case Opcodes.GETSTATIC:
-                instructions.addLast(new PushInstruction(new FieldExpression(owner, null, name)));
+                instructions.push(new PushInstruction(new FieldExpression(owner, null, name)));
                 break;
             case Opcodes.PUTFIELD:
                 {
                     Expression expression = popExpression();
-                    instructions.addLast(
+                    instructions.push(
                             new ExpressionInstruction(
                                     new AssignmentExpression(
                                             new FieldExpression(owner, popExpression(), name),
@@ -258,7 +256,7 @@ final class MethodVisitorImpl extends MethodVisitor {
                     break;
                 }
             case Opcodes.PUTSTATIC:
-                instructions.addLast(
+                instructions.push(
                         new ExpressionInstruction(
                                 new AssignmentExpression(
                                         new FieldExpression(owner, null, name), popExpression())));
@@ -281,7 +279,7 @@ final class MethodVisitorImpl extends MethodVisitor {
             case Opcodes.INVOKEVIRTUAL:
                 {
                     Expression expression = new InvokeMethodExpression(popExpression(), name, args);
-                    instructions.addLast(
+                    instructions.push(
                             type.getReturnType() == Type.VOID_TYPE
                                     ? new ExpressionInstruction(expression)
                                     : new PushInstruction(expression));
@@ -298,7 +296,7 @@ final class MethodVisitorImpl extends MethodVisitor {
                             && ((VariableExpression) expression).getVarIndex() == 0)) {
                         throw new IllegalStateException();
                     }
-                    instructions.addLast(new SuperclassConstructorInvocation(args));
+                    instructions.push(new SuperclassConstructorInvocation(args));
                     break;
                 }
             default:
@@ -308,31 +306,34 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     @Override
     public void visitLabel(Label label) {
-        if (instructions.size() < 4) {
-            return;
-        }
-        Iterator<Instruction> it = instructions.descendingIterator();
-        Instruction instruction = it.next();
-        if (!(instruction instanceof PushInstruction)) {
-            return;
-        }
-        Expression expression1 = ((PushInstruction) instruction).getExpression();
-        instruction = it.next();
-        if (!(instruction instanceof GotoInstruction)
-                || ((GotoInstruction) instruction).getLabel() != label) {
-            return;
-        }
-        instruction = it.next();
-        if (!(instruction instanceof PushInstruction)) {
-            return;
-        }
-        Expression expression2 = ((PushInstruction) instruction).getExpression();
+        instructions.setNextLabel(label);
+        // if (instructions.size() < 4) {
+        //     return;
+        // }
+        // Iterator<LabelledInstruction> it = instructions.descendingIterator();
+        // LabelledInstruction instruction = it.next();
+        // if (!(instruction.getInstruction() instanceof PushInstruction)) {
+        //     return;
+        // }
+        // Expression expression1 = ((PushInstruction)
+        // instruction.getInstruction()).getExpression();
+        // instruction = it.next();
+        // if (!(instruction.getInstruction() instanceof GotoInstruction)
+        //         || ((GotoInstruction) instruction.getInstruction()).getLabel() != label) {
+        //     return;
+        // }
+        // instruction = it.next();
+        // if (!(instruction.getInstruction() instanceof PushInstruction)) {
+        //     return;
+        // }
+        // Expression expression2 = ((PushInstruction)
+        // instruction.getInstruction()).getExpression();
         // TODO
     }
 
     @Override
     public void visitEnd() {
-        for (Instruction instruction : instructions) {
+        for (Instruction instruction : instructions.getInstructions()) {
             System.out.println(instruction);
         }
     }
