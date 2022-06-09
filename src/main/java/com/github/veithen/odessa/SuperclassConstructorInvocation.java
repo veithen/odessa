@@ -19,19 +19,15 @@
  */
 package com.github.veithen.odessa;
 
-public final class PushInstruction extends Instruction {
-    private final Expression expression;
+public final class SuperclassConstructorInvocation extends Instruction {
+    private final ArgList args;
 
-    public PushInstruction(Expression expression) {
-        this.expression = expression;
-    }
-
-    public Expression getExpression() {
-        return expression;
+    public SuperclassConstructorInvocation(Expression[] args) {
+        this.args = new ArgList(args);
     }
 
     @Override
     public String toString() {
-        return "PUSH " + expression + ";";
+        return "super" + args + ";";
     }
 }

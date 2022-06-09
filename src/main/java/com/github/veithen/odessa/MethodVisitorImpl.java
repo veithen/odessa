@@ -20,11 +20,11 @@
 package com.github.veithen.odessa;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.function.Function;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -108,7 +108,7 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     @Override
     public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
-        System.out.println("Frame " + Arrays.asList(stack) + " " + numStack);
+        instructions.addLast(new Frame());
     }
 
     @Override
@@ -224,6 +224,20 @@ final class MethodVisitorImpl extends MethodVisitor {
     }
 
     @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        switch (opcode) {
+            case Opcodes.GOTO:
+                instructions.addLast(new GotoInstruction(label));
+                break;
+            case Opcodes.IF_ICMPEQ:
+                // TODO
+                break;
+            default:
+                throw new UnknownOpcodeException(opcode);
+        }
+    }
+
+    @Override
     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
         switch (opcode) {
             case Opcodes.GETFIELD:
@@ -274,15 +288,46 @@ final class MethodVisitorImpl extends MethodVisitor {
                     break;
                 }
             case Opcodes.INVOKESPECIAL:
-                if (consumeTopOfStackExpression(
-                        RawNewExpression.class, e -> new NewExpression(e.getType(), args))) {
+                {
+                    if (consumeTopOfStackExpression(
+                            RawNewExpression.class, e -> new NewExpression(e.getType(), args))) {
+                        break;
+                    }
+                    Expression expression = popExpression();
+                    if (!(expression instanceof VariableExpression
+                            && ((VariableExpression) expression).getVarIndex() == 0)) {
+                        throw new IllegalStateException();
+                    }
+                    instructions.addLast(new SuperclassConstructorInvocation(args));
                     break;
                 }
-                // TODO
-                break;
             default:
                 throw new UnknownOpcodeException(opcode);
         }
+    }
+
+    @Override
+    public void visitLabel(Label label) {
+        if (instructions.size() < 4) {
+            return;
+        }
+        Iterator<Instruction> it = instructions.descendingIterator();
+        Instruction instruction = it.next();
+        if (!(instruction instanceof PushInstruction)) {
+            return;
+        }
+        Expression expression1 = ((PushInstruction) instruction).getExpression();
+        instruction = it.next();
+        if (!(instruction instanceof GotoInstruction)
+                || ((GotoInstruction) instruction).getLabel() != label) {
+            return;
+        }
+        instruction = it.next();
+        if (!(instruction instanceof PushInstruction)) {
+            return;
+        }
+        Expression expression2 = ((PushInstruction) instruction).getExpression();
+        // TODO
     }
 
     @Override

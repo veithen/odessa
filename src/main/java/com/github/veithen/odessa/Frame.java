@@ -19,19 +19,4 @@
  */
 package com.github.veithen.odessa;
 
-public final class PushInstruction extends Instruction {
-    private final Expression expression;
-
-    public PushInstruction(Expression expression) {
-        this.expression = expression;
-    }
-
-    public Expression getExpression() {
-        return expression;
-    }
-
-    @Override
-    public String toString() {
-        return "PUSH " + expression + ";";
-    }
-}
+public final class Frame extends Instruction {}

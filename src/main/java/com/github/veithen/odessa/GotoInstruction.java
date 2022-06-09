@@ -19,19 +19,16 @@
  */
 package com.github.veithen.odessa;
 
-public final class PushInstruction extends Instruction {
-    private final Expression expression;
+import org.objectweb.asm.Label;
 
-    public PushInstruction(Expression expression) {
-        this.expression = expression;
+public final class GotoInstruction extends Instruction {
+    private final Label label;
+
+    public GotoInstruction(Label label) {
+        this.label = label;
     }
 
-    public Expression getExpression() {
-        return expression;
-    }
-
-    @Override
-    public String toString() {
-        return "PUSH " + expression + ";";
+    public Label getLabel() {
+        return label;
     }
 }
