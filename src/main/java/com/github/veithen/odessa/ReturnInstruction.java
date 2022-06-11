@@ -19,6 +19,9 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Objects;
+
+@SuppressWarnings("EqualsHashCode")
 public final class ReturnInstruction extends Instruction {
     private final Expression expression;
 
@@ -29,5 +32,14 @@ public final class ReturnInstruction extends Instruction {
     @Override
     public String toString() {
         return expression == null ? "return;" : "return " + expression + ";";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ReturnInstruction)) {
+            return false;
+        }
+        ReturnInstruction other = (ReturnInstruction) obj;
+        return Objects.equals(expression, other.expression);
     }
 }

@@ -51,18 +51,31 @@
         <github.repository>odessa</github.repository>
         <javaVersion>1.8</javaVersion>
         <project.build.outputTimestamp>2022-06-04T00:00:00Z</project.build.outputTimestamp>
+        <asm.version>9.3</asm.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.3</version>
+            <version>${asm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.22.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>${asm.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

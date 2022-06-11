@@ -19,11 +19,14 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Objects;
+
+@SuppressWarnings("EqualsHashCode")
 public final class NewExpression extends Expression {
     private final String type;
     private final ArgList args;
 
-    public NewExpression(String type, Expression[] args) {
+    public NewExpression(String type, Expression... args) {
         this.type = type;
         this.args = new ArgList(args);
     }
@@ -36,5 +39,14 @@ public final class NewExpression extends Expression {
     @Override
     public String toString() {
         return "new " + type.replace('/', '.') + args;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof NewExpression)) {
+            return false;
+        }
+        NewExpression other = (NewExpression) obj;
+        return Objects.equals(type, other.type) && Objects.equals(args, other.args);
     }
 }

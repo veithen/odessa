@@ -20,6 +20,7 @@
 package com.github.veithen.odessa;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 import org.objectweb.asm.Label;
@@ -331,10 +332,7 @@ final class MethodVisitorImpl extends MethodVisitor {
         // TODO
     }
 
-    @Override
-    public void visitEnd() {
-        for (Instruction instruction : instructions.getInstructions()) {
-            System.out.println(instruction);
-        }
+    public List<Instruction> getInstructions() {
+        return instructions.getInstructions();
     }
 }

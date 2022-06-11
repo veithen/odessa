@@ -19,6 +19,9 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Objects;
+
+@SuppressWarnings("EqualsHashCode")
 public final class ConstantExpression extends Expression {
     private final Object value;
 
@@ -34,5 +37,14 @@ public final class ConstantExpression extends Expression {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ConstantExpression)) {
+            return false;
+        }
+        ConstantExpression other = (ConstantExpression) obj;
+        return Objects.equals(value, other.value);
     }
 }

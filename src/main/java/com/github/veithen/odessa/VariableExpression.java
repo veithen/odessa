@@ -19,6 +19,7 @@
  */
 package com.github.veithen.odessa;
 
+@SuppressWarnings("EqualsHashCode")
 public final class VariableExpression extends LvalueExpression {
     private final int varIndex;
 
@@ -38,5 +39,14 @@ public final class VariableExpression extends LvalueExpression {
     @Override
     public String toString() {
         return "$" + varIndex;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof VariableExpression)) {
+            return false;
+        }
+        VariableExpression other = (VariableExpression) obj;
+        return varIndex == other.varIndex;
     }
 }

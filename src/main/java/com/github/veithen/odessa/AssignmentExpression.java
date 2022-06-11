@@ -19,6 +19,9 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Objects;
+
+@SuppressWarnings("EqualsHashCode")
 public final class AssignmentExpression extends Expression {
     private final LvalueExpression target;
     private final Expression expression;
@@ -36,5 +39,14 @@ public final class AssignmentExpression extends Expression {
     @Override
     public String toString() {
         return target + " = " + expression;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AssignmentExpression)) {
+            return false;
+        }
+        AssignmentExpression other = (AssignmentExpression) obj;
+        return Objects.equals(target, other.target) && Objects.equals(expression, other.expression);
     }
 }

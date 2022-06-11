@@ -19,14 +19,12 @@
  */
 package com.github.veithen.odessa;
 
-import java.io.InputStream;
+public class TestClass {
+    public void newOperator() {
+        String test = new String("foobar");
+    }
 
-import org.objectweb.asm.ClassReader;
-
-public class Test {
-    public static void main(String[] args) throws Exception {
-        try (InputStream in = Test.class.getResourceAsStream("TestClass.class")) {
-            new ClassReader(in).accept(new ClassVisitorImpl(), 0);
-        }
+    public void newOperatorDiscardingResult() {
+        new String("foobar");
     }
 }

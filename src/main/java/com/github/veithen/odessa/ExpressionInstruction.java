@@ -19,7 +19,10 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Objects;
+
 /** Evaluates the given expression, but discards the result. */
+@SuppressWarnings("EqualsHashCode")
 public final class ExpressionInstruction extends Instruction {
     private final Expression expression;
 
@@ -34,5 +37,14 @@ public final class ExpressionInstruction extends Instruction {
     @Override
     public String toString() {
         return expression + ";";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ExpressionInstruction)) {
+            return false;
+        }
+        ExpressionInstruction other = (ExpressionInstruction) obj;
+        return Objects.equals(expression, other.expression);
     }
 }

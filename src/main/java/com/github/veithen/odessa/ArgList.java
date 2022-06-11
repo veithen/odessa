@@ -19,6 +19,9 @@
  */
 package com.github.veithen.odessa;
 
+import java.util.Arrays;
+
+@SuppressWarnings("EqualsHashCode")
 public final class ArgList {
     private final Expression[] args;
 
@@ -37,5 +40,14 @@ public final class ArgList {
         }
         buffer.append(")");
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ArgList)) {
+            return false;
+        }
+        ArgList other = (ArgList) obj;
+        return Arrays.deepEquals(args, other.args);
     }
 }
