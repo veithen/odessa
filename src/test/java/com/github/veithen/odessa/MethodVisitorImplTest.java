@@ -74,4 +74,9 @@ public class MethodVisitorImplTest {
                                         "java/lang/String", new ConstantExpression("foobar"))),
                         new ReturnInstruction(null));
     }
+
+    @Test
+    public void expressionAsBoolArg() {
+        assertThat(getInstructions("expressionAsBoolArg")).containsExactly();
+    }
 }

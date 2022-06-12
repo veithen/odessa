@@ -19,25 +19,19 @@
  */
 package com.github.veithen.odessa;
 
+public final class BinaryOperator {
+    public static final BinaryOperator ADDITION = new BinaryOperator("+");
+    public static final BinaryOperator MULTIPLICATION = new BinaryOperator("*");
+    public static final BinaryOperator EQUALS = new BinaryOperator("==");
+    public static final BinaryOperator NOT_EQUALS = new BinaryOperator("!=");
 
-public final class BinaryExpression extends Expression {
-    private final Expression operand1;
-    private final Expression operand2;
-    private final BinaryOperator operator;
+    private final String symbol;
 
-    public BinaryExpression(Expression operand1, Expression operand2, BinaryOperator operator) {
-        this.operand1 = operand1;
-        this.operand2 = operand2;
-        this.operator = operator;
+    private BinaryOperator(String symbol) {
+        this.symbol = symbol;
     }
 
-    @Override
-    public boolean isPure() {
-        return operand1.isPure() && operand2.isPure();
-    }
-
-    @Override
-    public String toString() {
-        return operand1 + " " + operator.getSymbol() + " " + operand2;
+    public String getSymbol() {
+        return symbol;
     }
 }

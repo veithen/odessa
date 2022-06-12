@@ -121,6 +121,12 @@ final class MethodVisitorImpl extends MethodVisitor {
         }
     }
 
+    private void addBinaryExpression(BinaryOperator operator) {
+        Expression operand2 = popExpression();
+        Expression operand1 = popExpression();
+        instructions.push(new PushInstruction(new BinaryExpression(operand1, operand2, operator)));
+    }
+
     @Override
     public void visitInsn(int opcode) {
         switch (opcode) {
@@ -140,14 +146,11 @@ final class MethodVisitorImpl extends MethodVisitor {
                         new PushInstruction(new ConstantExpression(opcode - Opcodes.ICONST_0)));
                 break;
             case Opcodes.IADD:
+                addBinaryExpression(BinaryOperator.ADDITION);
+                break;
             case Opcodes.IMUL:
-                {
-                    Expression operand2 = popExpression();
-                    Expression operand1 = popExpression();
-                    instructions.push(
-                            new PushInstruction(new BinaryExpression(operand1, operand2, opcode)));
-                    break;
-                }
+                addBinaryExpression(BinaryOperator.MULTIPLICATION);
+                break;
             case Opcodes.RETURN:
                 instructions.push(new ReturnInstruction(null));
                 break;
@@ -224,16 +227,25 @@ final class MethodVisitorImpl extends MethodVisitor {
 
     @Override
     public void visitJumpInsn(int opcode, Label label) {
+        BinaryOperator operator;
         switch (opcode) {
             case Opcodes.GOTO:
                 instructions.push(new GotoInstruction(label));
-                break;
+                return;
             case Opcodes.IF_ICMPEQ:
-                // TODO
+                operator = BinaryOperator.EQUALS;
+                break;
+            case Opcodes.IF_ICMPNE:
+                operator = BinaryOperator.NOT_EQUALS;
                 break;
             default:
                 throw new UnknownOpcodeException(opcode);
         }
+        Expression operand2 = popExpression();
+        Expression operand1 = popExpression();
+        instructions.push(
+                new ConditionalJumpInstruction(
+                        new BinaryExpression(operand1, operand2, operator), label));
     }
 
     @Override

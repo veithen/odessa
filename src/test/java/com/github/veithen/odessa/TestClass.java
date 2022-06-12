@@ -20,11 +20,20 @@
 package com.github.veithen.odessa;
 
 public class TestClass {
+    private void boolMethod(boolean arg) {
+        System.out.println(arg);
+    }
+
     public void newOperator() {
         String test = new String("foobar");
     }
 
     public void newOperatorDiscardingResult() {
         new String("foobar");
+    }
+
+    public void expressionAsBoolArg() {
+        int i = 42;
+        boolMethod(i == 42);
     }
 }

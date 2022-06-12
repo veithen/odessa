@@ -19,25 +19,14 @@
  */
 package com.github.veithen.odessa;
 
+import org.objectweb.asm.Label;
 
-public final class BinaryExpression extends Expression {
-    private final Expression operand1;
-    private final Expression operand2;
-    private final BinaryOperator operator;
+public final class ConditionalJumpInstruction extends Instruction {
+    private final Expression expression;
+    private final Label label;
 
-    public BinaryExpression(Expression operand1, Expression operand2, BinaryOperator operator) {
-        this.operand1 = operand1;
-        this.operand2 = operand2;
-        this.operator = operator;
-    }
-
-    @Override
-    public boolean isPure() {
-        return operand1.isPure() && operand2.isPure();
-    }
-
-    @Override
-    public String toString() {
-        return operand1 + " " + operator.getSymbol() + " " + operand2;
+    public ConditionalJumpInstruction(Expression expression, Label label) {
+        this.expression = expression;
+        this.label = label;
     }
 }
